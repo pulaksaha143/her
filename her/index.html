@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="author" content="Pulak Saha">
+    <title>For My Favorite Human ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(180deg, #fff5f5 0%, #fed7e2 100%);
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+        }
+        .heart-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 63, 94, 0)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(244, 63, 94, 0.4)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 0px rgba(244, 63, 94, 0)); }
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .floating-emoji {
+            position: absolute;
+            pointer-events: none;
+            animation: fly-up 1.5s forwards ease-out;
+            z-index: 50;
+        }
+        @keyframes fly-up {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-200px) scale(1.5) rotate(20deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 select-none">
+
+    <div class="text-center max-w-sm w-full space-y-8">
+        
+        <!-- Status Badge -->
+        <div class="inline-flex items-center space-x-2 bg-rose-100 px-4 py-1.5 rounded-full border border-rose-200 shadow-sm">
+            <span class="flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-rose-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+            </span>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-rose-600">Making Things Right...</span>
+        </div>
+
+        <!-- Message Area -->
+        <div class="glass min-h-[140px] flex items-center justify-center p-6 rounded-[2.5rem] shadow-xl border-white/50">
+            <h1 id="message" class="text-xl font-semibold text-rose-700 leading-relaxed transition-all duration-300">
+                I miss you so much...<br>Tap the heart for a message
+            </h1>
+        </div>
+
+        <!-- The Main Button Area -->
+        <div class="relative flex justify-center">
+            <button 
+                id="heart-btn"
+                onclick="spreadLove(event)" 
+                class="heart-pulse bg-white p-12 rounded-full shadow-2xl shadow-rose-200 border-8 border-white active:scale-90 transition-transform focus:outline-none"
+            >
+                <span class="text-7xl">❤️</span>
+            </button>
+        </div>
+
+        <!-- Love Meter -->
+        <div class="space-y-3">
+            <div class="w-full bg-rose-200/50 rounded-full h-3 overflow-hidden shadow-inner">
+                <div id="progress" class="bg-gradient-to-r from-rose-400 to-rose-600 h-3 w-0 transition-all duration-700 ease-out"></div>
+            </div>
+            <p class="text-[11px] text-rose-500 font-bold uppercase tracking-[0.2em]">Forgiveness Level: <span id="percent">0</span>%</p>
+        </div>
+
+    </div>
+
+    <script>
+        const messages = [
+            "I'm so sorry for being difficult today. Distance is hard, and I hate being the reason you're sad. ❤️",
+            "I wish I could be there to give you a real hug right now. 🫂",
+            "Even with all these miles between us, you're the only one on my mind. ✨",
+            "I miss your face and your voice so much today. 🥰",
+            "I promise to make up for today next time we are finally together. ✈️",
+            "You're the first thing I think of when I wake up and the last before I sleep. 🌙",
+            "No amount of distance can change how much I love you. ❤️",
+            "I'm counting down the seconds until I can hold your hand again. ⏳",
+            "You're my favorite person to talk to, even if it's just through a screen. 📱",
+            "I love you more than all the miles between us. 💖"
+        ];
+
+        let index = 0;
+        let progress = 0;
+
+        function spreadLove(event) {
+            const messageEl = document.getElementById('message');
+            const progressEl = document.getElementById('progress');
+            const percentEl = document.getElementById('percent');
+            
+            // Update Progress
+            if (progress < 100) {
+                progress += 10;
+                progressEl.style.width = progress + '%';
+                percentEl.innerText = progress;
+            }
+
+            // Update Message
+            messageEl.style.opacity = 0;
+            messageEl.style.transform = "translateY(10px)";
+            
+            setTimeout(() => {
+                messageEl.innerText = messages[index];
+                messageEl.style.opacity = 1;
+                messageEl.style.transform = "translateY(0px)";
+                index = (index + 1) % messages.length;
+            }, 200);
+
+            // Spawn floating hearts from the tap location
+            const x = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
+            const y = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
+            
+            for(let i = 0; i < 3; i++) {
+                createEmoji(x, y);
+            }
+
+            // Confetti
+            confetti({
+                particleCount: 80,
+                spread: 60,
+                origin: { y: 0.8 },
+                colors: ['#fb7185', '#fda4af', '#ffffff', '#ff006e']
+            });
+
+            // Vibration for mobile
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        function createEmoji(x, y) {
+            const emoji = document.createElement('div');
+            const emojis = ['❤️', '💖', '✨', '🌸', '🥰', '☁️', '🌟'];
+            emoji.className = 'floating-emoji';
+            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = (x - 20) + 'px';
+            emoji.style.top = (y - 20) + 'px';
+            emoji.style.fontSize = (Math.random() * 10 + 20) + 'px';
+            document.body.appendChild(emoji);
+            setTimeout(() => emoji.remove(), 1500);
+        }
+    </script>
+</body>
+</html>
